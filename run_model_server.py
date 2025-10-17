@@ -28,14 +28,17 @@ def classify_process():
 	while True:
 		# attempt to grab a batch of images from the database, then
 		# initialize the image IDs and batch of images themselves
-		queue = db.lrange(settings.IMAGE_QUEUE, 0, settings.BATCH_SIZE - 1)
 		imageIDs = []
 		batch = None
 
-		# loop over the queue
-		for q in queue:
+		# pop up to BATCH_SIZE items atomically to avoid duplicate work
+		while len(imageIDs) < settings.BATCH_SIZE:
+			item = db.lpop(settings.IMAGE_QUEUE)
+			if item is None:
+				break
+
 			# deserialize the object and obtain the input image
-			q = json.loads(q.decode("utf-8"))
+			q = json.loads(item.decode("utf-8"))
 			image = helpers.base64_decode_image(q["image"],
 				settings.IMAGE_DTYPE,
 				(1, settings.IMAGE_HEIGHT, settings.IMAGE_WIDTH,
@@ -74,9 +77,6 @@ def classify_process():
 				# store the output predictions in the database, using
 				# the image ID as the key so we can fetch the results
 				db.set(imageID, json.dumps(output))
-
-			# remove the set of images from our queue
-			db.ltrim(settings.IMAGE_QUEUE, len(imageIDs), -1)
 
 		# sleep for a small amount
 		time.sleep(settings.SERVER_SLEEP)

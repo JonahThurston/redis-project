@@ -22,9 +22,10 @@ Report the results and the detected objects with their confidence scores.
 
 4. Concurrency and Scaling
 Identify and Describe the main issues that occur when multiple web servers (run_web_server.py) and/or multiple model servers (run_model_server.py) are running at the same time.
-Update the code to fix one issue, test that it works, and explain the solution.
+Update the code to fix one issue, and explain the solution.
 
-TODO: answer question 4 and implement fix.
+Running several web servers multiplies the load that their polling loop puts on Redis: every in-flight request holds open a while loop that repeatedly issues `GET` calls, so scaling out the web tier quickly saturates Redis and slows new requests. Running several model servers is worse because they each perform an `LRANGE` followed by an `LTRIM` on `image_queue`; those two calls are not atomic, so two workers can grab the same batch before either trim runs, causing duplicated inference work and conflicting responses.  
+I fixed the second issue by switching `run_model_server.py` to remove jobs with `LPOP`, which atomically hands each payload to a single worker. That keeps batches from overlapping even when multiple model servers are running.
 
 5. Reducing Polling Overhead
 Polling is reliable but it is the most expensive way to interact with a system.
