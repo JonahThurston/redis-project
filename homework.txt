@@ -32,7 +32,7 @@ Polling is reliable but it is the most expensive way to interact with a system.
 Instead of having the web server poll REDIS waiting for a key to show up, research and implement a way that instead uses notifications and only uses polling as a backup.
 Test your implementation and explain how it reduces overhead.
 
-TODO: implement question 5 and answer question
+This reduces overhead because it means that the web server does not just sit there looping and waiting for the model to be done. Instead it just chills until it gets a notification that the worker is done. Compute isnt wasted sitting and cycling on a loop while it waits.
 
 6. Stress Test Fix
 The provided stress_test.py doesn't work because it starts threads but exits before they finish.
