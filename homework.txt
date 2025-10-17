@@ -1,0 +1,51 @@
+1. Redis Key Structure
+Identify the "key" in the REDIS database where the web server stores the user's image.
+State the data type and describe the structure of the stored value.
+
+The web server pushes each upload into the Redis list `image_queue` (see `run_web_server.py`: db.rpush(settings.IMAGE_QUEUE, json.dumps(d))), storing a JSON string for each entry that contains the request UUID under "id" and the base64-encoded image under "image".
+
+2. Web Server to Model Server Communication
+Explain how the web server communicates with the model (worker) server to hand off work and receive back results.
+Describe how it works for the web server to respond to web requests.
+
+The Flask endpoint in the web server uploads each request image, serializes it, and pushes a JSON payload onto the Redis list `image_queue`. The model worker in the model server polls that same list with db.lrange(...), decodes each payload, runs `ResNet50.predict`, and writes results back to Redis. While waiting for a response, the web server loops on `db.get(k)` and, once the worker has stored the predictions, it reads the JSON, deletes the Redis key, and returns the predictions in the HTTP response.
+
+3. Model Output
+Run simple_request.py with castle_image.jpg.
+Report the results and the detected objects with their confidence scores.
+
+1. church: 0.4136
+2. castle: 0.3930
+3. monastery: 0.1733
+4. palace: 0.0041
+5. vault: 0.0034
+
+4. Concurrency and Scaling
+Identify and Describe the main issues that occur when multiple web servers (run_web_server.py) and/or multiple model servers (run_model_server.py) are running at the same time.
+Update the code to fix one issue, test that it works, and explain the solution.
+
+TODO: answer question 4 and implement fix.
+
+5. Reducing Polling Overhead
+Polling is reliable but it is the most expensive way to interact with a system.
+Instead of having the web server poll REDIS waiting for a key to show up, research and implement a way that instead uses notifications and only uses polling as a backup.
+Test your implementation and explain how it reduces overhead.
+
+TODO: implement question 5 and answer question
+
+6. Stress Test Fix
+The provided stress_test.py doesn't work because it starts threads but exits before they finish.
+Update the code so threads are properly joined before the program terminates.
+Explain how and what you did to fix it.
+
+TODO: implement the fix and answer question 6
+
+7. Unified Logging
+Write a simple logging function callable from any file.
+Each log entry should be in a consitent format and include:
+- Server name
+- Main running Python script name
+- Timestamp
+- Action
+
+TODO: implement question 7
