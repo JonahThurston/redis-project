@@ -39,13 +39,14 @@ def call_predict_endpoint(n):
         print("[INFO] thread {} FAILED".format(n))
 
 # loop over the number of threads
+threads = []
+
 for i in range(0, NUM_REQUESTS):
     # start a new thread to call the API
     t = Thread(target=call_predict_endpoint, args=(i,))
-    t.daemon = True
     t.start()
+    threads.append(t)
     time.sleep(SLEEP_COUNT)
 
-# insert a long sleep so we can wait until the server is finished
-# processing the images
-time.sleep(300)
+for t in threads:
+    t.join()

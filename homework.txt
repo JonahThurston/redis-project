@@ -39,7 +39,7 @@ The provided stress_test.py doesn't work because it starts threads but exits bef
 Update the code so threads are properly joined before the program terminates.
 Explain how and what you did to fix it.
 
-TODO: implement the fix and answer question 6
+I keep every spawned thread in a list and call `join()` on each one after the launch loop in `stress_test.py`. That guarantees the main process blocks until all prediction threads complete, instead of relying on a fixed sleep that could finish early.
 
 7. Unified Logging
 Write a simple logging function callable from any file.
