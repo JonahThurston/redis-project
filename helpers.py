@@ -2,6 +2,8 @@
 import numpy as np
 import base64
 import sys
+import os
+from datetime import datetime
 
 def base64_encode_image(a):
 	# base64 encode the input NumPy array
@@ -20,3 +22,11 @@ def base64_decode_image(a, dtype, shape):
 
 	# return the decoded image
 	return a
+
+def log_action(server_name, action):
+	# central logging to keep all entries uniform
+	script_name = os.path.basename(sys.argv[0]) or "<unknown>"
+	timestamp = datetime.utcnow().isoformat() + "Z"
+	message = f"[{timestamp}] server={server_name} script={script_name} action={action}"
+	print(message)
+	return message

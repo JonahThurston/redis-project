@@ -20,9 +20,9 @@ def classify_process():
 	# load the pre-trained Keras model (here we are using a model
 	# pre-trained on ImageNet and provided by Keras, but you can
 	# substitute in your own networks just as easily)
-	print("* Loading model...")
+	helpers.log_action("model_server", "loading model")
 	model = ResNet50(weights="imagenet")
-	print("* Model loaded")
+	helpers.log_action("model_server", "model loaded")
 
 	# continually pool for new images to classify
 	while True:
@@ -58,7 +58,7 @@ def classify_process():
 		# check to see if we need to process the batch
 		if len(imageIDs) > 0:
 			# classify the batch
-			print("* Batch size: {}".format(batch.shape))
+			helpers.log_action("model_server", f"processing batch {batch.shape[0]}")
 			preds = model.predict(batch)
 			results = imagenet_utils.decode_predictions(preds)
 

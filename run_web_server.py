@@ -62,6 +62,7 @@ def predict():
 			image = helpers.base64_encode_image(image)
 			d = {"id": k, "image": image}
 			db.rpush(settings.IMAGE_QUEUE, json.dumps(d))
+			helpers.log_action("web_server", f"queued request {k}")
 
 			# keep looping until our model server returns the output
 			# predictions
@@ -88,6 +89,7 @@ def predict():
 
 			# indicate that the request was a success
 			data["success"] = True
+			helpers.log_action("web_server", f"completed request {k}")
 
 	# return the data dictionary as a JSON response
 	return flask.jsonify(data)
@@ -95,5 +97,5 @@ def predict():
 # for debugging purposes, it's helpful to start the Flask testing
 # server (don't use this for production
 if __name__ == "__main__":
-	print("* Starting web service...")
+	helpers.log_action("web_server", "starting web service")
 	app.run()

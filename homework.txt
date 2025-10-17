@@ -49,4 +49,4 @@ Each log entry should be in a consitent format and include:
 - Timestamp
 - Action
 
-TODO: implement question 7
+See helpers.py for logging function.
